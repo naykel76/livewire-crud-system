@@ -2,6 +2,8 @@
 
     <h1>{{ $pageTitle ?? null }}</h1>
 
-
+    <div class="bx">
+        <livewire:user.user-table />
+    </div>
 
 </x-gt-app-layout>

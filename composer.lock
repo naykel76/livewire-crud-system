@@ -8903,7 +8903,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "naykel/gotime": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
