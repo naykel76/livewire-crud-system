@@ -32,6 +32,8 @@ class UserForm extends Form
     public string $name;
     public string $email_verified_at;
     public string $password;
+    public string $bio;
+    public string $description;
 
     public function rules()
     {
@@ -42,6 +44,8 @@ class UserForm extends Form
             // to make sure they are included in the validated data
             'email_verified_at' => 'sometimes',
             'password' => 'sometimes',
+            'bio' => 'sometimes',
+            'description' => 'sometimes',
         ];
     }
 
@@ -53,7 +57,7 @@ class UserForm extends Form
 
     public function save(): Model
     {
-        // the validated data will only contain the properties that have been
+        // The validated data will only contain the properties that have been
         // defined in the form class with a validation rule.
 
         // This is why we need to include public properties for any field where
@@ -61,8 +65,12 @@ class UserForm extends Form
         // the email_verified_at date field but it is not editable.
         $validatedData = $this->validate();
 
-        // update or create the model with the validated data
-        $this->editing::updateOrCreate(['id' => $this->editing->id], $validatedData);
+        
+        // update or create the model with the validated data, then reassigning
+        // `$this->editing` with the result of the updateOrCreate method is to
+        // ensure that the $this->editing variable reflects the most current
+        // state of the model as it exists in the database after the operation.
+        $this->editing = $this->editing::updateOrCreate(['id' => $this->editing->id], $validatedData);
 
         // I am not sure if this is either necessary or a good idea.
         return $this->editing;

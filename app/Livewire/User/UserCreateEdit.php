@@ -23,6 +23,7 @@ class UserCreateEdit extends Component
 
     public function mount(User $user)
     {
+        // $user = User::firstOrFail();
         $model = $user->exists ? $user : $this->initModel();
         $this->form->init($model);
     }
@@ -47,34 +48,41 @@ class UserCreateEdit extends Component
     }
 
     /**
-     * Saves using the form's save method and dispatches a notification event.
+     * Saves using the form's save method and dispatch a notification event.
      * 
      * @param string|null $action Optional redirect action. save_close, etc.
      * @return void 
      */
     public function save(string $action = null): void
     {
-        $this->form->save();
+        $model = $this->form->save();
 
         // this event fires too quick when redirecting!
+        // NK::TD dispatch to a listener on the parent component
         $this->dispatch('notify', 'User saved successfully');
 
-        // this will not do anything if there is no action
-        $this->handleRedirect($action);
+        if ($action) {
+            $this->handleRedirect($this->routePrefix, $action, $model->id);
+        }
     }
 
     /**
-     * Handles the redirect action after saving the form.
-     * 
-     * @param string $action The redirect action to handle.
+     * Handles redirection based on the provided action.
+     *
+     * @param string $routePrefix The prefix for the route.
+     * @param string $action The action to be performed 'save_close', 'delete_close' ...
+     * @param int $id The optional ID for routes that require it.
+     * @return \Illuminate\Http\RedirectResponse Returns a redirect response based on the action.
+     * @throws \Exception Throws an exception if an invalid action is provided.
      */
-    public function handleRedirect($action)
+    function handleRedirect(string $routePrefix, string $action, int $id = null)
     {
-        switch ($action) {
-            case 'save_close':
-                return redirect(route("$this->routePrefix.index"));
-                break;
-        }
+        return match ($action) {
+            'save_close', 'delete_close' => redirect(route("$this->routePrefix.index")),
+            'save_new' => redirect(route("$routePrefix.create")),
+            'save_edit', 'save_stay' => redirect(route("$routePrefix.edit", $id)),
+            default => throw new \Exception("Invalid action: $action"),
+        };
     }
 
     public function render()
